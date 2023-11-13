@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
+    <title>Mandelbrot Explorer</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+        /* position: absolute; */
+        /* background-color: black; */
+      }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: black;
+      }
+    </style>
+  </head>
+  <body onload="init()">
+    <canvas> </canvas>
+    <script src="./bower_components/async/dist/async.min.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>
