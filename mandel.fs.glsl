@@ -7,6 +7,14 @@ uniform float maxI;
 uniform float minR;
 uniform float maxR;
 out vec4 vertexColor;
+vec3 hsb2rgb( in vec3 c ){
+    vec3 rgb = clamp(abs(mod(c.x*6.0+vec3(0.0,4.0,2.0),
+                             6.0)-3.0)-1.0,
+                     0.0,
+                     1.0 );
+    rgb = rgb*rgb*(3.0-2.0*rgb);
+    return c.z * mix(vec3(1.0), rgb, c.y);
+}
 void main()
 {
 	// [0, 1080] -> [-2.0, 2.0] (1): Multiply by (2.0 - -2.0) / (1080 - 0)
@@ -21,8 +29,8 @@ vec2 c = vec2(
 	// Mandelbrot formula!
 	vec2 z = c;
 	float iterations = 0.0;
-	float maxIterations = 4000.0;
-	const int imaxIterations = 4000;
+	float maxIterations = 500.0;
+	const int imaxIterations = 500;
 int i=0;
 	for ( i = 0; i < imaxIterations; i++) {
 		float t = 2.0 * z.x * z.y + c.y;
@@ -36,16 +44,12 @@ int i=0;
 		iterations += 1.0;
 	}
     float stability= float(i) / float(maxIterations);
-    vec3 color = vec3(stability);
+    float ur=sqrt(stability);
+    vec3 color = vec3(ur);
+     vec3 hsbColor ;
+// color=hsb2rgb(vec3(ur,1.0,1.0));
+		vertexColor = vec4(color, 1.0);
+if(stability==1.0)
 		vertexColor = vec4(color, 1.0);
 
-  if(stability<0.1&&stability>0.005)
-		vertexColor = vec4(0,0,1.0, 1.0);
-   
-// if()
-	// if (iterations < maxIterations) {
-	// 	discard;
-	// } else {
-	// 	vertexColor = vec4(0.0, 1.0, 1.0, 1.0);
-	// }
 }
