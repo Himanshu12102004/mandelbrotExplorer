@@ -2,6 +2,11 @@
 var canvas, gl;
 let lastPosition = { x: innerWidth / 2, y: innerHeight / 2 };
 let lastDistance = 0;
+
+const gui = new dat.GUI();
+const iterations = { iterationCount: 100 };
+gui.add(iterations, "iterationCount", 1, 10000);
+
 function loadShaderAsync(shaderURL, callback) {
   var req = new XMLHttpRequest();
   req.open("GET", shaderURL, true);
@@ -75,13 +80,15 @@ function runDemo(loadErrors, loadShaders) {
     maxI: gl.getUniformLocation(mandelbrotProgram, "maxI"),
     minR: gl.getUniformLocation(mandelbrotProgram, "minR"),
     maxR: gl.getUniformLocation(mandelbrotProgram, "maxR"),
+    maxIterataion: gl.getUniformLocation(mandelbrotProgram, "maxIterations"),
   };
   if (
     uniforms.maxI == null ||
     uniforms.minI == null ||
     uniforms.minR == null ||
     uniforms.maxR == null ||
-    uniforms.viewportDimensions < 0
+    uniforms.viewportDimensions == null ||
+    uniforms.maxIterataion == null
   ) {
     console.error("uniforms not found", uniforms);
   }
@@ -148,7 +155,9 @@ function runDemo(loadErrors, loadShaders) {
     gl.uniform1f(uniforms.maxI, maxI);
     gl.uniform1f(uniforms.minR, minR);
     gl.uniform1f(uniforms.maxR, maxR);
+    gl.uniform1i(uniforms.maxIterataion, iterations.iterationCount);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
+
     requestAnimationFrame(loop);
   };
   function onZoom(e) {
