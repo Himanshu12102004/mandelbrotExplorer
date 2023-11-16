@@ -147,7 +147,6 @@ function runDemo(loadErrors, loadShaders) {
         avg += frames[i];
       }
       avg /= frames.length;
-      document.title = (1000 / avg).toFixed(0) + " fps";
     }
     lastFrameTime = thisFrameTime;
     gl.clearColor(0, 0, 0, 1.0);
