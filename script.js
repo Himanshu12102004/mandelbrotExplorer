@@ -4,9 +4,12 @@ let lastPosition = { x: innerWidth / 2, y: innerHeight / 2 };
 let lastDistance = 0;
 
 const gui = new dat.GUI();
-const iterations = { iterationCount: 100 };
-gui.add(iterations, "iterationCount", 1, 10000);
-
+const color = { r: 255, g: 255, b: 255 };
+const colorFolder = gui.addFolder("Colors");
+colorFolder.add(color, "r", 0, 255);
+colorFolder.add(color, "g", 0, 255);
+colorFolder.add(color, "b", 0, 255);
+colorFolder.open();
 function loadShaderAsync(shaderURL, callback) {
   var req = new XMLHttpRequest();
   req.open("GET", shaderURL, true);
@@ -21,7 +24,6 @@ function loadShaderAsync(shaderURL, callback) {
 }
 function init() {
   if ("ontouchstart" in window || navigator.maxTouchPoints) {
-    console.log("ss");
   }
   async.map(
     {
@@ -80,7 +82,7 @@ function runDemo(loadErrors, loadShaders) {
     maxI: gl.getUniformLocation(mandelbrotProgram, "maxI"),
     minR: gl.getUniformLocation(mandelbrotProgram, "minR"),
     maxR: gl.getUniformLocation(mandelbrotProgram, "maxR"),
-    maxIterataion: gl.getUniformLocation(mandelbrotProgram, "maxIterations"),
+    color: gl.getUniformLocation(mandelbrotProgram, "userColors"),
   };
   if (
     uniforms.maxI == null ||
@@ -88,7 +90,7 @@ function runDemo(loadErrors, loadShaders) {
     uniforms.minR == null ||
     uniforms.maxR == null ||
     uniforms.viewportDimensions == null ||
-    uniforms.maxIterataion == null
+    uniforms.color == null
   ) {
     console.error("uniforms not found", uniforms);
   }
@@ -155,7 +157,7 @@ function runDemo(loadErrors, loadShaders) {
     gl.uniform1f(uniforms.maxI, maxI);
     gl.uniform1f(uniforms.minR, minR);
     gl.uniform1f(uniforms.maxR, maxR);
-    gl.uniform1i(uniforms.maxIterataion, iterations.iterationCount);
+    gl.uniform3f(uniforms.color, color.r / 255, color.g / 255, color.b / 255);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
     requestAnimationFrame(loop);
@@ -165,27 +167,30 @@ function runDemo(loadErrors, loadShaders) {
     var newRange;
     if (e.deltaY < 0) {
       newRange = imaginaryRange * 0.95;
-    } else {
+    } else if (e.deltaY > 0) {
       newRange = imaginaryRange * 1.05;
     }
+    if (newRange) {
+      var delta = newRange - imaginaryRange;
 
-    var delta = newRange - imaginaryRange;
+      minI -= delta / 2;
+      maxI = minI + newRange;
 
-    minI -= delta / 2;
-    maxI = minI + newRange;
-
-    onResizeWindow();
+      onResizeWindow();
+    }
   }
   addEventListener("touchstart", (e) => {
     lastPosition.x = e.touches[0].clientX;
     lastPosition.y = e.touches[0].clientY;
-    console.log(e.touches[0].clientX, e.touches[0].clientY);
+
     if (e.touches.length >= 2) {
       lastDistance = calculateDistance(e.touches[0], e.touches[1]);
     }
   });
   addEventListener("touchmove", (e) => {
-    if (e.touches.length > 0) {
+    if (e.touches.length == 1) {
+      e.preventDefault();
+
       const x = e.touches[0].clientX;
       const y = e.touches[0].clientY;
 
@@ -193,16 +198,15 @@ function runDemo(loadErrors, loadShaders) {
       e.movementY = y - lastPosition.y;
       lastPosition.x = x;
       lastPosition.y = y;
-      if (e.touches.length >= 2) {
-        console.log("heleo");
-        const currentDistance = calculateDistance(e.touches[0], e.touches[1]);
-        e.deltaY = currentDistance - lastDistance;
-        lastDistance = currentDistance;
-        onZoom(e);
-      }
+      onMousemove(e);
     }
-
-    onMousemove(e);
+    if (e.touches.length >= 2) {
+      e.preventDefault();
+      const currentDistance = calculateDistance(e.touches[0], e.touches[1]);
+      e.deltaY = -currentDistance + lastDistance;
+      lastDistance = currentDistance;
+      onZoom(e);
+    }
   });
   function calculateDistance(touch1, touch2) {
     const dx = touch1.clientX - touch2.clientX;
@@ -210,7 +214,6 @@ function runDemo(loadErrors, loadShaders) {
     return Math.sqrt(dx * dx + dy * dy);
   }
   function onMousemove(e) {
-    console.log(false);
     if (e.buttons === 1 || e.type == "touchmove") {
       var iRange = maxI - minI;
       var rRange = maxR - minR;
@@ -250,3 +253,20 @@ function removeEvent(object, type, callback) {
     object["on" + type] = callback;
   }
 }
+document.addEventListener("gesturestart", function (e) {
+  e.preventDefault();
+  // special hack to prevent zoom-to-tabs gesture in safari
+  document.body.style.zoom = 0.99;
+});
+
+document.addEventListener("gesturechange", function (e) {
+  e.preventDefault();
+  // special hack to prevent zoom-to-tabs gesture in safari
+  document.body.style.zoom = 0.99;
+});
+
+document.addEventListener("gestureend", function (e) {
+  e.preventDefault();
+  // special hack to prevent zoom-to-tabs gesture in safari
+  document.body.style.zoom = 0.99;
+});
