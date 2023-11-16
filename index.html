@@ -28,10 +28,45 @@
         justify-content: center;
         background-color: black;
       }
+      .instructions {
+        opacity: 1;
+        display: none;
+        position: absolute;
+        text-align: center;
+        align-items: center;
+        justify-content: center;
+        gap: 3.5rem;
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        color: white;
+        border-radius: 15px;
+        padding: 3rem 1rem;
+        font-family: monospace;
+        transition: all 1000ms ease;
+      }
+      .fade {
+        opacity: 0;
+      }
+      .right {
+        margin-top: 17px;
+      }
+      img {
+        width: 100px;
+      }
     </style>
   </head>
   <body onload="init()">
     <canvas> </canvas>
+    <div class="instructions">
+      <div class="instruction">
+        <img src="./pinch.png" alt="" />
+        <div>Pinch Zoom in/out</div>
+      </div>
+      <div class="instruction">
+        <img src="./pan.png" alt="" />
+        <div class="right">Drag to explore</div>
+      </div>
+    </div>
     <script src="./script.js"></script>
     <script src="./async.min.js"></script>
   </body>

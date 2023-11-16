@@ -2,7 +2,7 @@
 var canvas, gl;
 let lastPosition = { x: innerWidth / 2, y: innerHeight / 2 };
 let lastDistance = 0;
-
+let instructions = document.querySelector(".instructions");
 const gui = new dat.GUI();
 const color = { r: 255, g: 255, b: 255 };
 const colorFolder = gui.addFolder("Colors");
@@ -10,6 +10,7 @@ colorFolder.add(color, "r", 0, 255);
 colorFolder.add(color, "g", 0, 255);
 colorFolder.add(color, "b", 0, 255);
 colorFolder.open();
+let instructionsVisible = true;
 function loadShaderAsync(shaderURL, callback) {
   var req = new XMLHttpRequest();
   req.open("GET", shaderURL, true);
@@ -24,6 +25,7 @@ function loadShaderAsync(shaderURL, callback) {
 }
 function init() {
   if ("ontouchstart" in window || navigator.maxTouchPoints) {
+    document.querySelector(".instructions").style.display = "flex";
   }
   async.map(
     {
@@ -179,6 +181,13 @@ function runDemo(loadErrors, loadShaders) {
     }
   }
   addEventListener("touchstart", (e) => {
+    if (instructionsVisible) {
+      instructions.classList.add("fade");
+      setTimeout(() => {
+        instructions.style.display = "none";
+      }, 1000);
+      instructionsVisible = false;
+    }
     lastPosition.x = e.touches[0].clientX;
     lastPosition.y = e.touches[0].clientY;
 
@@ -188,8 +197,6 @@ function runDemo(loadErrors, loadShaders) {
   });
   addEventListener("touchmove", (e) => {
     if (e.touches.length == 1) {
-      e.preventDefault();
-
       const x = e.touches[0].clientX;
       const y = e.touches[0].clientY;
 
@@ -254,18 +261,15 @@ function removeEvent(object, type, callback) {
 }
 document.addEventListener("gesturestart", function (e) {
   e.preventDefault();
-  // special hack to prevent zoom-to-tabs gesture in safari
   document.body.style.zoom = 0.99;
 });
 
 document.addEventListener("gesturechange", function (e) {
   e.preventDefault();
-  // special hack to prevent zoom-to-tabs gesture in safari
   document.body.style.zoom = 0.99;
 });
 
 document.addEventListener("gestureend", function (e) {
   e.preventDefault();
-  // special hack to prevent zoom-to-tabs gesture in safari
   document.body.style.zoom = 0.99;
 });
