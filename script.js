@@ -25,7 +25,21 @@ function loadShaderAsync(shaderURL, callback) {
 }
 function init() {
   if ("ontouchstart" in window || navigator.maxTouchPoints) {
-    document.querySelector(".instructions").style.display = "flex";
+    instructions.style.display = "flex";
+  } else {
+    instructions.style.display = "flex";
+    instructions.innerHTML = "";
+    instructions.insertAdjacentHTML(
+      "beforeend",
+      `<div style="padding:1rem 2rem">
+      <img src="./assets/swipe.svg"height="100px">
+      <ul>
+      <li  style="text-align:justify;margin-top:2rem;font-size:1.05rem;line-height:1.5">Swipe Up/Down with two   fingers  <br>on trackpad to zoom in/out</li>
+      <li style="margin-top:0.5rem;text-align:left;font-size:1.05rem">Pan to explore</li>
+</ul>
+      </div>
+    `
+    );
   }
   async.map(
     {
@@ -220,6 +234,13 @@ function runDemo(loadErrors, loadShaders) {
     return Math.sqrt(dx * dx + dy * dy);
   }
   function onMousemove(e) {
+    if (instructionsVisible) {
+      instructions.classList.add("fade");
+      setTimeout(() => {
+        instructions.style.display = "none";
+      }, 1000);
+      instructionsVisible = false;
+    }
     if (e.buttons === 1 || e.type == "touchmove") {
       var iRange = maxI - minI;
       var rRange = maxR - minR;
