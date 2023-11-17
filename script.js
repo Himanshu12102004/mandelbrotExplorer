@@ -74,7 +74,7 @@ function main(loadErrors, loadShaders) {
     topLeftBound.innerHTML =
       "" +
       ((maxR + minR) / 2).toFixed(n) +
-      ((maxI + minR) / 2 > 0 ? "+" : "-") +
+      ((maxI + minI) / 2 >= 0 ? "+" : "-") +
       Math.abs((maxI + minI) / 2).toFixed(n) +
       "i";
   }
@@ -323,7 +323,10 @@ document.addEventListener("gestureend", function (e) {
 const elem = document.querySelector("#screenshot");
 elem.addEventListener("click", () => {
   canvas.toBlob((blob) => {
-    saveBlob(blob, `screencapture-${canvas.width}x${canvas.height}.png`);
+    saveBlob(
+      blob,
+      `himanshu-mandelBrotExplorer-${canvas.width}x${canvas.height}.png`
+    );
   });
 });
 
