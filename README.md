@@ -32,6 +32,13 @@ This project is helps you to easily vizualize and zoom in or out to get a closer
 
 These features collectively contribute to creating a powerful and engaging Mandelbrot set explorer that balances accessibility, speed, and customization. Users can seamlessly navigate through the fractal, experience rapid rendering with GPU acceleration, zoom in extensively, and experiment with various color schemes for a personalized exploration experience.
 
+## Some Pics
+
+![FractalDemo](https://github.com/Himanshu12102004/mandelbrotExplorer/gitHubDemoImages/yellowFractal.png)
+![FractalDemo](https://github.com/Himanshu12102004/mandelbrotExplorer/gitHubDemoImages/zoomedin.png)
+![FractalDemo](https://github.com/Himanshu12102004/mandelbrotExplorer/gitHubDemoImages/fullZoom.png)
+![FractalDemo](https://github.com/Himanshu12102004/mandelbrotExplorer/gitHubDemoImages/lessZoom.png)
+![FractalDemo](https://github.com/Himanshu12102004/mandelbrotExplorer/gitHubDemoImages/fractalDeo.png)
 
 ## Live Demo
 
