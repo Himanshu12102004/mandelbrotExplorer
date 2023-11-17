@@ -2,13 +2,17 @@
 var canvas, gl;
 let lastPosition = { x: innerWidth / 2, y: innerHeight / 2 };
 let lastDistance = 0;
+let zoomLevel = document.querySelector(".zoomLevel");
+let topLeftBound = document.querySelector(".topLeft");
+let bottomRightBound = document.querySelector(".bottomRight");
 let instructions = document.querySelector(".instructions");
+let staticViewportDimensions = 6;
 const gui = new dat.GUI();
-const color = { r: 255, g: 255, b: 255 };
+const color = { Red: 255, Green: 255, Blue: 255 };
 const colorFolder = gui.addFolder("Colors");
-colorFolder.add(color, "r", 0, 255);
-colorFolder.add(color, "g", 0, 255);
-colorFolder.add(color, "b", 0, 255);
+colorFolder.add(color, "Red", 0, 255);
+colorFolder.add(color, "Green", 0, 255);
+colorFolder.add(color, "Blue", 0, 255);
 colorFolder.open();
 let instructionsVisible = true;
 function loadShaderAsync(shaderURL, callback) {
@@ -43,20 +47,19 @@ function init() {
   }
   async.map(
     {
-      vsText: "./mandel.vs.glsl",
-      fsText: "./mandel.fs.glsl",
+      vsText: "./shaders/mandel.vs.glsl",
+      fsText: "./shaders/mandel.fs.glsl",
     },
     loadShaderAsync,
-    runDemo
+    main
   );
 }
-function runDemo(loadErrors, loadShaders) {
-  // AttachCallBack
+function main(loadErrors, loadShaders) {
   addEvent(window, "resize", onResizeWindow);
   addEvent(window, "wheel", onZoom);
   addEvent(window, "mousemove", onMousemove);
   canvas = document.querySelector("canvas");
-  gl = canvas.getContext("webgl2");
+  gl = canvas.getContext("webgl2", { preserveDrawingBuffer: true });
   if (!gl) {
     gl = canvas.getContext("webgl");
     if (!gl) {
@@ -64,6 +67,22 @@ function runDemo(loadErrors, loadShaders) {
       return;
     }
   }
+  function updateInfo() {
+    let n = 10;
+    zoomLevel.innerHTML =
+      (staticViewportDimensions / (maxI - minI)).toFixed(n) + "x";
+    topLeftBound.innerHTML =
+      "" +
+      ((maxR + minR) / 2).toFixed(n) +
+      ((maxI + minR) / 2 > 0 ? "+" : "-") +
+      Math.abs((maxI + minI) / 2).toFixed(n) +
+      "i";
+  }
+  let minI = -3.0;
+  let maxI = +3.0;
+  let minR = -3.0;
+  let maxR = +3.0;
+
   let vertexShader = gl.createShader(gl.VERTEX_SHADER);
   gl.shaderSource(vertexShader, loadShaders[0]);
   gl.compileShader(vertexShader);
@@ -87,6 +106,7 @@ function runDemo(loadErrors, loadShaders) {
     console.error(
       "failed To validate" + gl.getProgramInfoLog(mandelbrotProgram)
     );
+    return;
   }
   gl.useProgram(mandelbrotProgram);
   const uniforms = {
@@ -111,10 +131,6 @@ function runDemo(loadErrors, loadShaders) {
     console.error("uniforms not found", uniforms);
   }
   let viewportDimensions = [canvas.width, canvas.height];
-  let minI = -3.0;
-  let maxI = +3.0;
-  let minR = -3.0;
-  let maxR = +3.0;
   let vertexBuffer = gl.createBuffer();
   let vertices = [-1, 1, -1, -1, 1, -1, -1, 1, 1, 1, 1, -1];
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
@@ -146,6 +162,8 @@ function runDemo(loadErrors, loadShaders) {
     minR -= (newRealRange - oldRealRange) / 2;
     maxR = ((maxI - minI) * canvas.width) / canvas.height + minR;
     viewportDimensions = [canvas.width, canvas.height];
+    updateInfo();
+    return maxI - minI;
   }
   let thisFrameTime;
   let lastFrameTime = performance.now();
@@ -172,7 +190,12 @@ function runDemo(loadErrors, loadShaders) {
     gl.uniform1f(uniforms.maxI, maxI);
     gl.uniform1f(uniforms.minR, minR);
     gl.uniform1f(uniforms.maxR, maxR);
-    gl.uniform3f(uniforms.color, color.r / 255, color.g / 255, color.b / 255);
+    gl.uniform3f(
+      uniforms.color,
+      color.Red / 255,
+      color.Green / 255,
+      color.Blue / 255
+    );
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
     requestAnimationFrame(loop);
@@ -192,6 +215,7 @@ function runDemo(loadErrors, loadShaders) {
       maxI = minI + newRange;
 
       onResizeWindow();
+      updateInfo();
     }
   }
   addEventListener("touchstart", (e) => {
@@ -253,9 +277,11 @@ function runDemo(loadErrors, loadShaders) {
       minR -= rDelta;
       maxR -= rDelta;
     }
+    updateInfo();
   }
-  onResizeWindow();
+  staticViewportDimensions = onResizeWindow();
 
+  updateInfo();
   loop();
 }
 
@@ -294,3 +320,21 @@ document.addEventListener("gestureend", function (e) {
   e.preventDefault();
   document.body.style.zoom = 0.99;
 });
+const elem = document.querySelector("#screenshot");
+elem.addEventListener("click", () => {
+  canvas.toBlob((blob) => {
+    saveBlob(blob, `screencapture-${canvas.width}x${canvas.height}.png`);
+  });
+});
+
+const saveBlob = (function () {
+  const a = document.createElement("a");
+  document.body.appendChild(a);
+  a.style.display = "none";
+  return function saveData(blob, fileName) {
+    const url = window.URL.createObjectURL(blob);
+    a.href = url;
+    a.download = fileName;
+    a.click();
+  };
+})();
