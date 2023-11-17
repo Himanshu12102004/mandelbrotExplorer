@@ -34,7 +34,7 @@ These features collectively contribute to creating a powerful and engaging Mande
 
 ## Some Pics
 
-![FractalDemo](https://github.com/Himanshu12102004/mandelbrotExplorer/gitHubDemoImages/yellowFractal.png)
+![FractalDemo](https://github.com/Himanshu12102004/mandelbrotExplorer/blob/main/gitHubDemoImages/fractalDeo.png)
 ![FractalDemo](https://github.com/Himanshu12102004/mandelbrotExplorer/gitHubDemoImages/zoomedin.png)
 ![FractalDemo](https://github.com/Himanshu12102004/mandelbrotExplorer/gitHubDemoImages/fullZoom.png)
 ![FractalDemo](https://github.com/Himanshu12102004/mandelbrotExplorer/gitHubDemoImages/lessZoom.png)
